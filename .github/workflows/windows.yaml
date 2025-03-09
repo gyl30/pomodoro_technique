@@ -5,7 +5,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  qmake_build:
     runs-on: [windows-2019]
     strategy:
       matrix:
@@ -65,3 +65,34 @@ jobs:
         with:
           files: ${{ env.executable }}-${{ matrix.qt_arch }}-${{ matrix.qt_ver }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
+  build_cmake:
+    runs-on: windows-latest
+    steps:
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.1
+          arch: win64_msvc2022_64
+      - uses: actions/checkout@v2
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+        with:
+          useLocalCache: true
+      - name: Setup MSVC Development Environment
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+      - name: '🚧 Configure with CMake'
+        run: |
+          mkdir build
+          cd build
+          cmake ../ -DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl -DPRODUCTION_OPTIMIZATION=ON -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build application
+        run: |
+          cd build
+          cmake --build . --config Release -j 16
+          
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
