@@ -83,7 +83,7 @@ jobs:
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with:
           arch: x64
-      - name: '🚧 Configure with CMake'
+      - name: Configure with CMake
         run: |
           mkdir build
           cd build
@@ -96,3 +96,10 @@ jobs:
           
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
+
+      - name: Deploy
+        shell: pwsh
+        run: |
+          dir
+          where.exe windeployqt
+          where.exe nmake
