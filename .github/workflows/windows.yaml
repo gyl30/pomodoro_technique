@@ -103,3 +103,4 @@ jobs:
           dir
           where.exe windeployqt
           where.exe nmake
+          dir .\build
