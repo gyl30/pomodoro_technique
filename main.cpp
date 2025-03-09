@@ -5,6 +5,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setQuitOnLastWindowClosed(false);
     Widget w;
     w.show();
     return QApplication::exec();

@@ -15,15 +15,16 @@ class Widget : public QWidget
     explicit Widget(QWidget *parent = nullptr);
     ~Widget() override = default;
 
-   public:
-    void closeEvent(QCloseEvent *event) override;
-    void hideEvent(QHideEvent *event) override;
+   // public:
+   //  void closeEvent(QCloseEvent *event) override;
+   //  void hideEvent(QHideEvent *event) override;
    private slots:
     void startTimer();
     void stopTimer();
     void showTrayNotification();
     void tray_clicked(QSystemTrayIcon::ActivationReason);
-
+   private:
+    QPoint screenCenter();
    private:
     QTimer *timer_ = nullptr;
     QSystemTrayIcon *tray_ = nullptr;

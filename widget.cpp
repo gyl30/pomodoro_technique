@@ -53,23 +53,19 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     tray_ = new QSystemTrayIcon(this);
     tray_->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));
     tray_->setVisible(true);
+    tray_->show();
 
     auto *tray_menu = new QMenu(this);
     auto *exit_action = new QAction("退出", this);
     tray_menu->addAction(exit_action);
     tray_->setContextMenu(tray_menu);
-    connect(tray_,
-            SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-            this,
-            SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
-
+    connect(tray_, &QSystemTrayIcon::activated, this, &Widget::tray_clicked, Qt::UniqueConnection);
     connect(exit_action, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     timer_ = new QTimer(this);
     connect(timer_, &QTimer::timeout, this, &Widget::showTrayNotification);
 
     connect(start_button_, &QPushButton::clicked, this, &Widget::startTimer);
-
     setFixedSize(300, 150);
 }
 void Widget::startTimer()
@@ -88,29 +84,29 @@ void Widget::tray_clicked(QSystemTrayIcon::ActivationReason reason)
 {
     if (reason == QSystemTrayIcon::DoubleClick && this->isHidden())
     {
-        this->show();
+        auto pos = screenCenter();
+        // 重新设置窗口标志，确保窗口能正常显示
+        setWindowFlags(Qt::Window);
+        showNormal();        // 让窗口回到正常状态
+        activateWindow();    // 让窗口获得焦点
+        raise();             // 提升窗口到前台
+        move(pos);
     }
 }
-
+QPoint Widget::screenCenter()
+{
+    QScreen *screen = this->screen();
+    QRect screen_geometry = screen->availableGeometry();
+    int x = screen_geometry.center().x() - (width() / 2);
+    int y = screen_geometry.center().y() - (height() / 2);
+    return {x, y};
+}
 void Widget::showTrayNotification()
 {
     stopTimer();
-    QScreen *screen = this->screen();
-    QRect screen_geometry = screen->availableGeometry();
-    int x = screen_geometry.center().x() - width() / 2;
-    int y = screen_geometry.center().y() - height() / 2;
     CustomMessageBox msg_box(this);
-    msg_box.move(x, y);
+    auto pos = screenCenter();
+    msg_box.move(pos);
     msg_box.exec();
     startTimer();
-}
-void Widget::closeEvent(QCloseEvent *event)
-{
-    this->hide();
-    event->ignore();
-}
-void Widget::hideEvent(QHideEvent *event)
-{
-    this->hide();
-    event->ignore();
 }
