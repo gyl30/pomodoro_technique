@@ -104,3 +104,12 @@ jobs:
           where.exe windeployqt
           where.exe nmake
           dir .\build
+          dir .\build\Release
+
+      - name: Install WiX
+        run: dotnet tool install --global wix
+        
+      - name: Package application
+        run: |
+          cd build
+          cpack --verbose
