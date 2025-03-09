@@ -67,6 +67,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
   build_cmake:
     runs-on: windows-latest
+    env:
+      executable: pomodoro
     steps:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -105,11 +107,5 @@ jobs:
           where.exe nmake
           dir .\build
           dir .\build\Release
-
-      - name: Install WiX
-        run: dotnet tool install --global wix
-        
-      - name: Package application
-        run: |
-          cd build
-          cpack --verbose
+          windeployqt .\build\Release\${{ env.executable }}.exe --release --no-translations --no-opengl-sw --no-system-d3d-compiler --no-compiler-runtime --dir .\build\Release\
+          dir .\build\Release
